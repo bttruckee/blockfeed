@@ -6,8 +6,7 @@ import os
 import sys
 
 currency = os.environ.get('CURRENCY', 'USD')
-# cmc_key = os.environ.get('COINMARKETCAP_API_KEY')
-cmc_key = "947979f2-d65c-42f0-b5ec-b00e8e05cf33"
+cmc_key = os.environ.get('COINMARKETCAP_API_KEY')
 
 lock = Lock()
 
