@@ -3,6 +3,26 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# postgres
+.pgpass
+
+# vs code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+workspace.*
+launch.json
+
 # C extensions
 *.so
 
@@ -127,3 +147,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+cmcApiCapture.txt
