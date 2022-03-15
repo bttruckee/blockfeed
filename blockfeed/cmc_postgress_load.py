@@ -3,6 +3,7 @@ import os
 import psycopg2 as pg2
 import psycopg2.extras as pg2ext
 from datetime import date
+import logging
 
 batch_limit = 1000
 
@@ -19,13 +20,18 @@ db_params = {
 db_file.close()
 
 conn = None
+
+log = logging.getLogger('cmcFeed')
+
 def connect():
     """Connect to the database."""
+    log.info('Connect...')
     global conn
     if conn is not None:
         return conn
     else:
         conn = pg2.connect(**db_params)
+        log.info('Postgres connect success.')
         return conn
 
 def get_cursor():
@@ -35,9 +41,9 @@ def cursor():
     return connect().cursor()
 
 def insert_cmc_feed(response):
-    """Insert currency list."""
+    log.info('Start loading cmc_feed into Postgres.')
     cursor = get_cursor()
-
+    date_created = date.today()
     for row in response['data']:
         data = str(row)
 
@@ -77,22 +83,22 @@ def insert_cmc_feed(response):
             volume_24h, volume_change_24h, percent_change_1h, 
             percent_change_24h, percent_change_7d, percent_change_30d,
             percent_change_60d, percent_change_90d, market_cap,
-            market_cap_dominance, fully_diluted_market_cap)
+            market_cap_dominance, fully_diluted_market_cap, date_created)
  
         insert_query = ('insert into public."cmcFeed" (id, name, symbol, slug, num_market_pairs, date_added, ' + 
             'max_supply,  total_supply, last_updated, price, ' +
             'volume_24h, volume_change_24h, percent_change_1h, ' +
             'percent_change_24h, percent_change_7d, percent_change_30d, ' +
             'percent_change_60d, percent_change_90d, market_cap,' +
-            'market_cap_dominance, fully_diluted_market_cap) ' +
-            'values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)')
+            'market_cap_dominance, fully_diluted_market_cap, date_created) ' +
+            'values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)')
         cursor.execute(insert_query, data_string)
 
          # tags here.
          # for now, keying off coin symbol.  only add if it does not exist.
 
          # first check if we already have the symbol/tag entry.
-        select_tag_match = 'select symbol, tag from public."cmcTag"'
+        select_tag_match = 'select symbol, tag from public."cmcTag" where symbol = \'' + symbol +"\'"
         cursor.execute(select_tag_match)
         tag_db_records = cursor.fetchall()
         num_records = len(tag_db_records)
@@ -101,9 +107,8 @@ def insert_cmc_feed(response):
         if num_records == 0:
             tags = row['tags']
             for tag in tags:
-                date_created = date.today()
                 data_string = (symbol, tag, date_created)
-        
+
                 insert_query = ('insert into public."cmcTag" (symbol, tag, date_created) ' +
                     'values (%s,%s,%s)')
                 cursor.execute(insert_query, data_string)
@@ -111,5 +116,5 @@ def insert_cmc_feed(response):
         cursor.execute("""COMMIT""")
 
 
-
+    print("Complete")
 

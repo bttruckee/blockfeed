@@ -1,6 +1,7 @@
 from cmc_api import Cmc_API
 import cmc_postgress_load
 
+print('Starting')
 ''' pull data from coinMarketCap(cmc) '''
 cmc_api = Cmc_API()
 cmc_response = cmc_api.collect()

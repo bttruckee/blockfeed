@@ -10,14 +10,7 @@ cmc_key = os.environ.get('COINMARKETCAP_API_KEY')
 
 lock = Lock()
 
-# logging setup
 log = logging.getLogger('cmcFeed')
-log.setLevel(logging.INFO)
-ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-log.addHandler(ch)
 
 class Cmc_API():
   def __init__(self):
@@ -26,7 +19,7 @@ class Cmc_API():
     self.parameters = {'start': '1', 'limit': '5000', 'convert': currency}
 
   def tickers(self):
-    log.info('Query coinmarketcap api...')
+    log.info('Query coinmarketcap api...tickers')
     session = Session()
     session.headers.update(self.headers)
     response = session.get(self.url, params=self.parameters)
@@ -38,7 +31,7 @@ class Cmc_API():
 
   def collect(self):
     with lock:
-      log.info('Query coinmarketcap api...')
+      log.info('Query coinmarketcap api...collect')
       # query the api
       response = self.tickers()
       if 'data' not in response:
